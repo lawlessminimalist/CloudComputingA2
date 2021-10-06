@@ -1,0 +1,94 @@
+body {
+  font-family: sans-serif;
+  background-color: aliceblue;
+}
+
+#app{
+  margin:auto;
+  width: 50%;
+  align-items: center;
+  padding: 5em;
+}
+#pageTitle{
+  margin:auto;
+  padding: 10px;
+  width: 40%;
+  height: 20%;
+  text-align: center;
+  border-radius:25px;
+  border-style: dotted;
+
+}
+
+#mapid {
+   height: 30em;
+   width:  30em;
+   margin:auto;
+   margin-top: 1em;
+}
+
+#trend_selectors{
+  border-style: groove;
+  align-content: center;
+  width: 60%;
+  margin:auto;
+  margin-top: 10%;
+  
+}
+
+#trend_selectors .btn{
+  margin-inline: .6em;
+  margin-top:.5em;
+}
+
+.article_head{
+  text-align: center;
+  border: 5px black;
+  border-radius:25px;
+}
+
+#article_displays{
+  width:90%;
+  margin:auto;
+  display: flex;
+  margin-top: 5em;
+
+}
+.card{
+  margin-top: 1em;
+  margin-inline: auto;
+}
+.card_sized{
+  max-height: 50em !important;
+}
+
+
+#article_displays_positive{
+  width:30%;
+  margin:auto;
+  margin-top: initial;
+
+}
+#article_displays_neutral{
+  width:30%;
+  margin:auto;
+  margin-top: initial;
+
+}
+#article_displays_negative{
+  width:30%;
+  margin:auto;
+  margin-top: initial;
+
+}
+
+
+
+.card_sized{
+  max-width: 20em;
+  max-height: 20em;
+}
+
+
+
+
