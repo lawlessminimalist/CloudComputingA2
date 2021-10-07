@@ -5,7 +5,7 @@ const path = require('path');
 const trendSearch = require('./routes/trends.js');
 const newsSearch = require('./routes/news_api.js');
 
-const hostname = '0.0.0.0';
+const hostname = '127.0.0.1';
 const port = 80;
 
 
