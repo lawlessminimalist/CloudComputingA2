@@ -17,6 +17,7 @@ mymap.addEventListener('click', onMapClick);
 
 //handle submit of desired location and 
 function handleForm(event) { 
+    searchTweets('dog','20');
     event.preventDefault();
     var query = document.getElementById("location_lookup").value;
     searchLocation(query);
@@ -122,8 +123,25 @@ function reverseGeoCode(lattlng){
 
 }
 
-
-
+//grab tweets from twitter route and leave as json objects for sentiment analysis
+function searchTweets(query,number){
+    url = `/twitter/${query}/${number}`;
+    fetch(url)
+        .then( (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok.");
+        })
+        .then((response) =>{
+            console.log(response)
+            return response
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+    
+}
 
 //define keys and params
 
@@ -224,7 +242,3 @@ function write_list_to_buttons(trends){
     }
     parent.innerHTML+=(str);
 }
-
-
-
-
