@@ -17,7 +17,6 @@ mymap.addEventListener('click', onMapClick);
 
 //handle submit of desired location and 
 function handleForm(event) { 
-    searchTweets('dog','20');
     event.preventDefault();
     var query = document.getElementById("location_lookup").value;
     searchLocation(query);
@@ -121,53 +120,6 @@ function reverseGeoCode(lattlng){
             console.log("There has been a problem with your fetch operation: ",error.message);
         });
 
-}
-
-//grab tweets from twitter route and leave as json objects for sentiment analysis
-function searchTweets(query,number){
-    url = `/twitter/${query}/${number}`;
-    fetch(url)
-        .then( (response) => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error("Network response was not ok.");
-        })
-        .then((response) =>{
-            analyseTweets(response)
-            return response
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-    
-}
-
-//this section will analyse the tweets and check for their spelling accuracy
-function analyseTweets(tweets) {
-    import { randomWords } from 'random-words';
-    console.log(tweets)
-    let tweetsCorpus = [];
-    tweets.forEach(tweet => {
-        let words = tweet.text.split(" ")
-        words.forEach(word=>{
-            tweetsCorpus.push(word)
-        })
-    });
-
-    
-    let bowCorpus = randomWords(tweetsCorpus.length * 2)
-
-    let spellcheck = new natural.Spellcheck(bowCorpus)
-    let correctionCount = 0;
-    tweetsCorpus.forEach(tweet=>{
-        let temp = spellcheck.getCorrections(tweet,1)
-        if(temp.length > 0) {
-            correctionCount++
-        }
-    })
-    let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
-    return accuracyRate
 }
 
 
