@@ -3,6 +3,8 @@ const logger = require('morgan');
 const axios = require("axios");
 const router = express.Router();
 var Sentiment = require('sentiment');
+let randomWords = require('random-words')
+let natural = require('natural')
 var sentiment = new Sentiment();
 router.use(logger('tiny'));
 router.get('/:query/:number', (req, res) => {
@@ -26,7 +28,9 @@ router.get('/:query/:number', (req, res) => {
                 throw new Error("Network response was not ok.");
             })
             .then((data) => {
-                res.write(JSON.stringify(data));
+                let accuracyRate = analyseTweets(data)
+                let results = {data:data,accuracyRate:accuracyRate}
+                res.write(JSON.stringify(results));
                 res.end();
             })
             .catch((error) => {
@@ -52,7 +56,32 @@ function createTwitterOptions(query,number) {
     return options;
 }
 
+//this section will analyse the tweets and check for their spelling accuracy
+function analyseTweets(tweets) {
+    console.log(tweets)
+    let tweetsCorpus = [];
+    tweets.forEach(tweet => {
+        let words = tweet.text.split(" ")
+        words.forEach(word=>{
+            tweetsCorpus.push(word)
+        })
+    });
 
+    
+    let bowCorpus = randomWords(tweetsCorpus.length * 2)
+
+    let spellcheck = new natural.Spellcheck(bowCorpus)
+    let correctionCount = 0;
+    tweetsCorpus.forEach(tweet=>{
+        let temp = spellcheck.getCorrections(tweet,1)
+        if(temp.length > 0) {
+            correctionCount++
+        }
+    })
+    let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
+    console.log(accuracyRate)
+    return accuracyRate
+}
 
 module.exports = router;
 
