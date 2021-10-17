@@ -119,7 +119,7 @@ function searchTweets(query,number){
         })
         .then((response) =>{
             score = updateSentiment(response)
-            writeSentiment(score);
+            emoji_writer(score);
             return response
         })
         .catch((error) => {
@@ -197,6 +197,24 @@ function createReverseGeoReq(lattlng) {
 //functions to append data to the client side applicaiton and make them actionable by the user via embedded JS
 
 
+//given a score write an appropriate emoji to the html with the valency underneath
+function emoji_writer(score){
+    string = "";
+    //neutral emoji
+    if(score === 0 ){
+        string = "&#128529"
+    }
+    //positive emoji
+    else if(score > 0 ){
+        string = "&#128525"
+    }
+    //negative emoji
+    else if(score < 0){
+        string = "&#128545"
+    }
+    writeSentiment(string,score);
+}
+
 
 
 
@@ -207,15 +225,15 @@ function write_list_to_buttons(trends){
     parent.innerHTML = "";
     str=""
     for(let i=0; i < trends.length; i++) {
-        str+=`<a href='javascript:searchTweets("`+trends[i].value+`",30)' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
+        str+=`<a onclick ='searchTweets("`+trends[i].value+`",30)' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
         +trends[i].value+
         `</a>`;
     }
     parent.innerHTML+=(str);
 }
 
-function writeSentiment(score){
+function writeSentiment(string,score){
     var parent = document.getElementById("article_displays");
-    str=`<h1>`+score+`</h1>`;
+    str=`<h1>`+string+`</h1><h1>`+Math.round(score*20)+`%</h1>`;
     parent.innerHTML=(str);
 }
