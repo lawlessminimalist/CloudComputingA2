@@ -7,6 +7,10 @@ let randomWords = require('random-words')
 let natural = require('natural')
 var sentiment = new Sentiment();
 router.use(logger('tiny'));
+
+
+
+
 router.get('/:query/:number', (req, res) => {
     //create options for calling news API
     const options = createTwitterOptions(req.params.query,req.params.number);
@@ -30,7 +34,8 @@ router.get('/:query/:number', (req, res) => {
             .then((data) => {
                 let accuracyRate = analyseTweets(data)
                 let results = {data:data,accuracyRate:accuracyRate}
-                res.write(JSON.stringify(results));
+                let sentiment_data = sentimentAnalysis(results)
+                res.write(JSON.stringify(sentiment_data));
                 res.end();
             })
             .catch((error) => {
@@ -58,7 +63,6 @@ function createTwitterOptions(query,number) {
 
 //this section will analyse the tweets and check for their spelling accuracy
 function analyseTweets(tweets) {
-    console.log(tweets)
     let tweetsCorpus = [];
     tweets.forEach(tweet => {
         let words = tweet.text.split(" ")
@@ -81,6 +85,25 @@ function analyseTweets(tweets) {
     let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
     console.log(accuracyRate)
     return accuracyRate
+}
+
+
+function sentimentAnalysis(tweets){
+    target = tweets.data
+    for(let i=0; i < target.length; i++) {
+        if(target[i].description === null){
+            delete tweets.data[i];
+        }
+        else{
+            var result = sentiment.analyze(target[i].text);
+            tweets.data[i].sentiment =  { sentiment: JSON.stringify(result.score)};
+        }
+
+    }
+
+    console.log(emojiEmotion.slice(0, 5))
+
+    return tweets; 
 }
 
 module.exports = router;
