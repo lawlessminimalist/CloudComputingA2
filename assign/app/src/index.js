@@ -19,7 +19,6 @@ mymap.addEventListener('click', onMapClick);
 
 //handle submit of desired location and 
 function handleForm(event) { 
-    searchTweets('dog','20');
     event.preventDefault();
     var query = document.getElementById("location_lookup").value;
     searchLocation(query);
@@ -119,7 +118,8 @@ function searchTweets(query,number){
             throw new Error("Network response was not ok.");
         })
         .then((response) =>{
-            console.log(response)
+            score = updateSentiment(response)
+            writeSentiment(score);
             return response
         })
         .catch((error) => {
@@ -127,6 +127,22 @@ function searchTweets(query,number){
         })
     
 }
+
+
+function updateSentiment(tweets){
+    console.log(tweets)
+    target = tweets.data;
+    let consensus = 0;
+    for(let i=0; i < target.length; i++) {
+        consensus = consensus + target[i].sentiment;
+    }
+    consensus = consensus/target.length;
+    return consensus;
+
+}
+
+
+
 
 //define keys and params
 const mapObj = {
@@ -191,9 +207,15 @@ function write_list_to_buttons(trends){
     parent.innerHTML = "";
     str=""
     for(let i=0; i < trends.length; i++) {
-        str+=`<a href='javascript:searchNews("`+trends[i].value+`")' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
+        str+=`<a href='javascript:searchTweets("`+trends[i].value+`",30)' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
         +trends[i].value+
         `</a>`;
     }
     parent.innerHTML+=(str);
+}
+
+function writeSentiment(score){
+    var parent = document.getElementById("article_displays");
+    str=`<h1>`+score+`</h1>`;
+    parent.innerHTML=(str);
 }

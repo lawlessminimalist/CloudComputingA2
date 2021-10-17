@@ -9,7 +9,7 @@ var sentiment = new Sentiment();
 router.use(logger('tiny'));
 
 
-
+                                  
 
 router.get('/:query/:number', (req, res) => {
     //create options for calling news API
@@ -25,7 +25,6 @@ router.get('/:query/:number', (req, res) => {
             .then( (response) => {
                 if (response.status === 200) {
                     res.writeHead(200,{'content-type': 'application/json'});
-                    console.log(response.data.data)
                     return response.data.data;
 
                 }
@@ -35,6 +34,7 @@ router.get('/:query/:number', (req, res) => {
                 let accuracyRate = analyseTweets(data)
                 let results = {data:data,accuracyRate:accuracyRate}
                 let sentiment_data = sentimentAnalysis(results)
+                //console.log(sentiment_data)
                 res.write(JSON.stringify(sentiment_data));
                 res.end();
             })
@@ -83,7 +83,6 @@ function analyseTweets(tweets) {
         }
     })
     let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
-    console.log(accuracyRate)
     return accuracyRate
 }
 
@@ -96,12 +95,11 @@ function sentimentAnalysis(tweets){
         }
         else{
             var result = sentiment.analyze(target[i].text);
-            tweets.data[i].sentiment =  { sentiment: JSON.stringify(result.score)};
+            tweets.data[i].sentiment =  result.score;
         }
 
     }
 
-    console.log(emojiEmotion.slice(0, 5))
 
     return tweets; 
 }
