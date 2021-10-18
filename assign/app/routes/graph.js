@@ -28,4 +28,3 @@ router.get('/:tweet/:tweet1/:tweet2/:accuracy/:accuracy1/:accuracy2', (req, res)
 });
 
 module.exports = router;
-
