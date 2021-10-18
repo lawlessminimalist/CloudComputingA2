@@ -63,7 +63,6 @@ function trends(location){
     
 }
     
-
 //given a location, forward geo-code a location into coordinates and set the map view to that locaiton
 function searchLocation(query){
     const options = createMapOptions(query);
@@ -170,7 +169,6 @@ function spellCheck(){
     }
 }
 
-
 function updateSentiment(tweets){
     console.log(tweets)
     target = tweets.data;
@@ -182,9 +180,6 @@ function updateSentiment(tweets){
     return consensus;
 
 }
-
-
-
 
 //define keys and params
 const mapObj = {
@@ -256,11 +251,6 @@ function emoji_writer(score){
     }
     writeSentiment(string,score);
 }
-
-
-
-
-
 
 function write_list_to_buttons(trends){
     var parent = document.getElementById("trend_selectors");
