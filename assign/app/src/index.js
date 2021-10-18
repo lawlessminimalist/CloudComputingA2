@@ -1,5 +1,3 @@
-
-
 //initilize map tile + deafult display of London
 var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -19,6 +17,7 @@ mymap.addEventListener('click', onMapClick);
 
 //handle submit of desired location and 
 function handleForm(event) { 
+    searchTweets('dog');
     event.preventDefault();
     var query = document.getElementById("location_lookup").value;
     searchLocation(query);
@@ -62,8 +61,25 @@ function trends(location){
         })
     
 }
+//grab news from news route and process into html elements for client application
+function searchNews(tag){
+    str = str.replace(/\s/g, '%20');
+    url = "/news/" +tag;
+    fetch(url)
+        .then( (response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok.");
+        })
+        .then((rsp) =>{
+            write_list_to_display_box(rsp.articles);
+        })
+        .catch((error) => {
+            console.error(error);
+        })
     
-
+}
 //given a location, forward geo-code a location into coordinates and set the map view to that locaiton
 function searchLocation(query){
     const options = createMapOptions(query);
@@ -108,8 +124,8 @@ function reverseGeoCode(lattlng){
 }
 
 //grab tweets from twitter route and leave as json objects for sentiment analysis
-function searchTweets(query,number){
-    url = `/twitter/${query}/${number}`;
+function searchTweets(query){
+    url = `/twitter/${query}/30`;
     fetch(url)
         .then( (response) => {
             if (response.ok) {
@@ -118,33 +134,73 @@ function searchTweets(query,number){
             throw new Error("Network response was not ok.");
         })
         .then((response) =>{
-            score = updateSentiment(response)
-            emoji_writer(score);
-            return response
+            let accuracy = analyseTweets(response)
+            return accuracy
         })
         .catch((error) => {
             console.error(error);
         })
-    
 }
 
+function generateGraph(tweets,accuracy) {
+    var Chart = require('chart.js');
+    new Chart(document.getElementById("bar-chart"), {
+        type: 'bar',
+        data: {
+            labels: [tweets[0],tweets[1],tweets[2]],
+            datasets: [
+                {
+                    label: "Accuracy",
+                    backgroundColor: ["#3e95cd","#8e5ea2","e8c3b9"],
+                    data: accuracy
+                }
+            ]
+        },
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: 'Tweet Spelling Accuracy'
+            }
+        }
+    });
+    //return <canvas id="bar-chart" width="800" height="450"></canvas>
+}
 
-function updateSentiment(tweets){
+//this section will analyse the tweets and check for their spelling accuracy
+function analyseTweets(tweets) {
+    console.log("tweets")
+    const randomWords = require('random-words')
     console.log(tweets)
-    target = tweets.data;
-    let consensus = 0;
-    for(let i=0; i < target.length; i++) {
-        consensus = consensus + target[i].sentiment;
-    }
-    consensus = consensus/target.length;
-    return consensus;
+    let tweetsCorpus = [];
+    tweets.forEach(tweet => {
+        let words = tweet.text.split(" ")
+        words.forEach(word=>{
+            tweetsCorpus.push(word)
+        })
+    });
 
+    
+    let bowCorpus = randomWords(tweetsCorpus.length * 2)
+
+    let spellcheck = new natural.Spellcheck(bowCorpus)
+    let correctionCount = 0;
+    tweetsCorpus.forEach(tweet=>{
+        let temp = spellcheck.getCorrections(tweet,1)
+        if(temp.length > 0) {
+            correctionCount++
+        }
+    })
+    let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
+    return accuracyRate
 }
 
 
 
 
 //define keys and params
+
+
 const mapObj = {
     api_key: "pk.eyJ1IjoiZGFubGF3bGVzcyIsImEiOiJja3Q4MGYyeGMweHZiMnBxbnptaW9pZmc5In0.d0JcWkmcG3tFuMlalviNxw",
     autocomplete: "true",
@@ -197,25 +253,35 @@ function createReverseGeoReq(lattlng) {
 //functions to append data to the client side applicaiton and make them actionable by the user via embedded JS
 
 
-//given a score write an appropriate emoji to the html with the valency underneath
-function emoji_writer(score){
-    string = "";
-    //neutral emoji
-    if(score === 0 ){
-        string = "&#128529"
+function write_list_to_display_box(articles){
+    let parent_pos = document.getElementById("article_displays_positive");
+    let parent_neut = document.getElementById("article_displays_neutral");
+    let parent_neg = document.getElementById("article_displays_negative");
+    //reset cards
+    parent_pos.innerHTML = "";
+    parent_neut.innerHTML = "";
+    parent_neg.innerHTML = "";
+
+    //create cards from article information
+    parent_pos.innerHTML+=`<h1 class="article_head">Positive Articles</h1>`;
+    parent_neut.innerHTML+=`<h1 class="article_head">Neutral Articles</h1>`;
+    parent_neg.innerHTML+=`<h1 class="article_head">Negative Articles</h1>`;
+
+    for(let i=0; i < articles.length; i++) {
+        str = "";
+        str+= `<div class="card card_sized " style="width: 18rem;"><a href=`+articles[i].url+`>
+        <img class="card-img-top" src="`+articles[i].urlToImage+`" alt="`+articles[i].title+`">
+         <div class="card-body">
+            <h5 class="card-title">`+articles[i].title+`</h5>
+        </div></a>
+    </div>`
+    if(articles[i].sentiment.sentiment === "Positive"){parent_pos.innerHTML+=(str);}
+    else if( articles[i].sentiment.sentiment === "Neutral"){parent_neut.innerHTML+=(str);}
+    else if( articles[i].sentiment.sentiment === "Negative"){parent_neg.innerHTML+=(str);}
     }
-    //positive emoji
-    else if(score > 0 ){
-        string = "&#128525"
-    }
-    //negative emoji
-    else if(score < 0){
-        string = "&#128545"
-    }
-    writeSentiment(string,score);
+    
+
 }
-
-
 
 
 
@@ -225,15 +291,13 @@ function write_list_to_buttons(trends){
     parent.innerHTML = "";
     str=""
     for(let i=0; i < trends.length; i++) {
-        str+=`<a onclick ='searchTweets("`+trends[i].value+`",30)' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
+        str+=`<a href='javascript:searchTweets("`+trends[i].value+`")' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
         +trends[i].value+
         `</a>`;
     }
     parent.innerHTML+=(str);
 }
 
-function writeSentiment(string,score){
-    var parent = document.getElementById("article_displays");
-    str=`<h1>`+string+`</h1><h1>`+Math.round(score*20)+`%</h1>`;
-    parent.innerHTML=(str);
-}
+
+
+
