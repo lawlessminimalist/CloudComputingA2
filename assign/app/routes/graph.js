@@ -22,8 +22,9 @@ router.get('/:tweet/:tweet1/:tweet2/:accuracy/:accuracy1/:accuracy2', (req, res)
         }]
     }
     });
-    let test = document.getElementById("graphdiv")
     console.log(test)
+
+    let test = document.getElementById("graphdiv")
     res.send(chart)
 });
 
