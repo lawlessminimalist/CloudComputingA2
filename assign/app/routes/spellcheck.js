@@ -8,9 +8,6 @@ let natural = require('natural')
 var sentiment = new Sentiment();
 router.use(logger('tiny'));
 
-
-                                  
-
 router.get('/:query/:number', (req, res) => {
     //create options for calling news API
     const options = createTwitterOptions(req.params.query,req.params.number);
