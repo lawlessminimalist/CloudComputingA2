@@ -8,9 +8,6 @@ let natural = require('natural')
 var sentiment = new Sentiment();
 router.use(logger('tiny'));
 
-
-                                  
-
 router.get('/:query/:number', (req, res) => {
     //create options for calling news API
     const options = createTwitterOptions(req.params.query,req.params.number);
@@ -32,8 +29,8 @@ router.get('/:query/:number', (req, res) => {
             })
             .then((data) => {
                 let accuracyRate = analyseTweets(data)
-                let results = {data:data,accuracyRate:accuracyRate}
-                res.write(JSON.stringify(results));
+                //console.log(sentiment_data)
+                res.write(JSON.stringify(accuracyRate));
                 res.end();
             })
             .catch((error) => {
@@ -61,7 +58,6 @@ function createTwitterOptions(query,number) {
 
 //this section will analyse the tweets and check for their spelling accuracy
 function analyseTweets(tweets) {
-    console.log(tweets)
     let tweetsCorpus = [];
     tweets.forEach(tweet => {
         let words = tweet.text.split(" ")
@@ -82,7 +78,6 @@ function analyseTweets(tweets) {
         }
     })
     let accuracyRate = (correctionCount/tweetsCorpus.length) * 100
-    console.log(accuracyRate)
     return accuracyRate
 }
 

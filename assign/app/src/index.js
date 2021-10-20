@@ -1,3 +1,45 @@
+var ctx = document.getElementById('myChart').getContext('2d');
+
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+
+
+
+
+
 //initilize map tile + deafult display of London
 var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -17,7 +59,6 @@ mymap.addEventListener('click', onMapClick);
 
 //handle submit of desired location and 
 function handleForm(event) { 
-    searchTweets('dog','20');
     event.preventDefault();
     var query = document.getElementById("location_lookup").value;
     searchLocation(query);
@@ -61,25 +102,8 @@ function trends(location){
         })
     
 }
-//grab news from news route and process into html elements for client application
-function searchNews(tag){
-    str = str.replace(/\s/g, '%20');
-    url = "/news/" +tag;
-    fetch(url)
-        .then( (response) => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error("Network response was not ok.");
-        })
-        .then((rsp) =>{
-            write_list_to_display_box(rsp.articles);
-        })
-        .catch((error) => {
-            console.error(error);
-        })
     
-}
+
 //given a location, forward geo-code a location into coordinates and set the map view to that locaiton
 function searchLocation(query){
     const options = createMapOptions(query);
@@ -124,8 +148,8 @@ function reverseGeoCode(lattlng){
 }
 
 //grab tweets from twitter route and leave as json objects for sentiment analysis
-function searchTweets(query,number){
-    url = `/twitter/${query}/${number}`;
+function searchTweets(query){
+    url = `/twitter/${query}/30`;
     fetch(url)
         .then( (response) => {
             if (response.ok) {
@@ -134,18 +158,75 @@ function searchTweets(query,number){
             throw new Error("Network response was not ok.");
         })
         .then((response) =>{
-            console.log(response)
+            score = updateSentiment(response)
+            emoji_writer(score);
             return response
         })
         .catch((error) => {
             console.error(error);
         })
-    
 }
 
+function createGraph(tweets,accuracy) {
+    url = `/graph/${tweets[0]}/${tweets[1]}/${tweets[2]}/${accuracy[0]}/${accuracy[1]}/${accuracy[2]}`
+    fetch(url)
+    .then((response)=>{
+        console.log(response.body)
+    })
+}
+
+//grab tweets from twitter route and calculate spelling accuracy
+function spellCheck(){
+    let queries = document.getElementsByClassName("checkbutton")
+    let accuracyResults = []
+    let tweets = []
+    for(let i = 0; i < queries.length; i++) {
+        if(queries[i].checked===true){
+            tweets.push(queries[i].value)
+        }
+    }
+    if(tweets.length!==3){
+        alert('Make Sure To Select Three Hashtags To Use')
+    } else {
+        tweets.forEach(tweet => {
+            url = `/spellcheck/${tweet}/30`;
+            fetch(url)
+                .then( (response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error("Network response was not ok.");
+                })
+                .then((response) =>{
+                    accuracyResults.push(response);
+                    if(accuracyResults.length===tweets.length) {
+                        createGraph(tweets,accuracyResults)
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+        });
+    }
+}
+
+
+function updateSentiment(tweets){
+    console.log(tweets)
+    target = tweets.data;
+    let consensus = 0;
+    for(let i=0; i < target.length; i++) {
+        consensus = consensus + target[i].sentiment;
+    }
+    consensus = consensus/target.length;
+    return consensus;
+
+}
+
+
+
+
 //define keys and params
-
-
 const mapObj = {
     api_key: "pk.eyJ1IjoiZGFubGF3bGVzcyIsImEiOiJja3Q4MGYyeGMweHZiMnBxbnptaW9pZmc5In0.d0JcWkmcG3tFuMlalviNxw",
     autocomplete: "true",
@@ -198,35 +279,25 @@ function createReverseGeoReq(lattlng) {
 //functions to append data to the client side applicaiton and make them actionable by the user via embedded JS
 
 
-function write_list_to_display_box(articles){
-    let parent_pos = document.getElementById("article_displays_positive");
-    let parent_neut = document.getElementById("article_displays_neutral");
-    let parent_neg = document.getElementById("article_displays_negative");
-    //reset cards
-    parent_pos.innerHTML = "";
-    parent_neut.innerHTML = "";
-    parent_neg.innerHTML = "";
-
-    //create cards from article information
-    parent_pos.innerHTML+=`<h1 class="article_head">Positive Articles</h1>`;
-    parent_neut.innerHTML+=`<h1 class="article_head">Neutral Articles</h1>`;
-    parent_neg.innerHTML+=`<h1 class="article_head">Negative Articles</h1>`;
-
-    for(let i=0; i < articles.length; i++) {
-        str = "";
-        str+= `<div class="card card_sized " style="width: 18rem;"><a href=`+articles[i].url+`>
-        <img class="card-img-top" src="`+articles[i].urlToImage+`" alt="`+articles[i].title+`">
-         <div class="card-body">
-            <h5 class="card-title">`+articles[i].title+`</h5>
-        </div></a>
-    </div>`
-    if(articles[i].sentiment.sentiment === "Positive"){parent_pos.innerHTML+=(str);}
-    else if( articles[i].sentiment.sentiment === "Neutral"){parent_neut.innerHTML+=(str);}
-    else if( articles[i].sentiment.sentiment === "Negative"){parent_neg.innerHTML+=(str);}
+//given a score write an appropriate emoji to the html with the valency underneath
+function emoji_writer(score){
+    string = "";
+    //neutral emoji
+    if(score === 0 ){
+        string = "&#128529"
     }
-    
-
+    //positive emoji
+    else if(score > 0 ){
+        string = "&#128525"
+    }
+    //negative emoji
+    else if(score < 0){
+        string = "&#128545"
+    }
+    writeSentiment(string,score);
 }
+
+
 
 
 
@@ -236,9 +307,8 @@ function write_list_to_buttons(trends){
     parent.innerHTML = "";
     str=""
     for(let i=0; i < trends.length; i++) {
-        str+=`<a href='javascript:searchNews("`+trends[i].value+`")' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left" role="button" aria-pressed="true">`
-        +trends[i].value+
-        `</a>`;
+        str+=`<input type="checkbox" class="checkbutton" value="`+ trends[i].value +`">`+trends[i].value+`</checkbutton><br />`;
     }
+    str += `<button onclick ='spellCheck()' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left">Analyse Trends</button>`
     parent.innerHTML+=(str);
 }

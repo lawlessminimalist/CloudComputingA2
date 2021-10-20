@@ -10,6 +10,8 @@ head
   link(rel='stylesheet' href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css' integrity='sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==' crossorigin='')
   // Make sure you put this AFTER Leaflet's CSS
   script(src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js' integrity='sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==' crossorigin='')
+  script(type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js')
+
 h1#pageTitle BiasControlledMedia
 
 #app
@@ -20,14 +22,14 @@ h1#pageTitle BiasControlledMedia
 
 #mapid.d-flex.justify-content-center
 
-
+canvas#myChart(width='400' height='400')
 
 #trend_selectors
 
-#article_displays
-  #article_displays_positive
-  #article_displays_neutral
-  #article_displays_negative
+#trend_selected
+
+#graphdiv
+
 
 
   script(src='static/index.js')
