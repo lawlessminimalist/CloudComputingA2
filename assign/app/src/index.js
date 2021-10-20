@@ -242,7 +242,3 @@ function write_list_to_buttons(trends){
     }
     parent.innerHTML+=(str);
 }
-
-
-
-
