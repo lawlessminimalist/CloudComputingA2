@@ -1,44 +1,39 @@
-var ctx = document.getElementById('myChart').getContext('2d');
-
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
+function createGraph(tweets,accuracy) {
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: tweets,
+            datasets: [{
+                data: accuracy,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
         }
-    }
-});
-
-
-
-
-
+    });
+}
 
 //initilize map tile + deafult display of London
 var mymap = L.map('mapid').setView([51.505, -0.09], 13);
@@ -153,6 +148,7 @@ function searchTweets(query){
     fetch(url)
         .then( (response) => {
             if (response.ok) {
+                console.log(response.json())
                 return response.json();
             }
             throw new Error("Network response was not ok.");
@@ -167,16 +163,26 @@ function searchTweets(query){
         })
 }
 
-function createGraph(tweets,accuracy) {
-    url = `/graph/${tweets[0]}/${tweets[1]}/${tweets[2]}/${accuracy[0]}/${accuracy[1]}/${accuracy[2]}`
-    fetch(url)
+function fetchTweets() {
+    url = '/twitter1/100'
+    fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({"tweets":"cats"})
+    })
+    .then((response) =>{
+        console.log(response)
+    })
     .then((response)=>{
-        console.log(response.body)
+        console.log(response)
+    })
+    .catch((error) => {
+        console.error(error);
     })
 }
 
 //grab tweets from twitter route and calculate spelling accuracy
 function spellCheck(){
+    fetchTweets()
     let queries = document.getElementsByClassName("checkbutton")
     let accuracyResults = []
     let tweets = []
@@ -311,4 +317,10 @@ function write_list_to_buttons(trends){
     }
     str += `<button onclick ='spellCheck()' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left">Analyse Trends</button>`
     parent.innerHTML+=(str);
+}
+
+function writeSentiment(string,score){
+    var parent = document.getElementById("article_displays");
+    str=`<h1>`+string+`</h1><h1>`+Math.round(score*20)+`%</h1>`;
+    parent.innerHTML=(str);
 }
