@@ -7,7 +7,7 @@ const newsSearch = require('./routes/news_api.js');
 const twitterSearch = require('./routes/twitter.js');
 const spellCheck = require('./routes/spellcheck');
 const graph = require('./routes/graph');
-const twitter1 = require('./routes/test')
+const twitter1 = require('./routes/test.js')
 
 const hostname = '127.0.0.1';
 const port = 3005;
@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
  res.render("index")
 });
 //define routes to hit for API searches
+app.use(express.json())
 app.use('/search',trendSearch); 
 app.use('/news',newsSearch);
 app.use('/twitter',twitterSearch)

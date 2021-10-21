@@ -10,6 +10,7 @@
     "google-trends": "^0.1.1",
     "google-trends-api": "^4.9.2",
     "https": "^1.0.0",
+    "jsbn": "^1.1.0",
     "local-reverse-geocoder": "^0.11.1",
     "morgan": "^1.10.0",
     "natural": "^5.1.1",
@@ -17,6 +18,8 @@
     "random-words": "^1.1.1",
     "rss-to-json": "^2.0.2",
     "sentiment": "^5.0.2",
-    "server": "^1.0.36"
+    "server": "^1.0.36",
+    "socket.io": "^4.3.1",
+    "twit": "^2.2.11"
   }
 }

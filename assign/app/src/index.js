@@ -167,7 +167,10 @@ function fetchTweets() {
     url = '/twitter1/100'
     fetch(url, {
         method: 'POST',
-        body: JSON.stringify({"tweets":"cats"})
+        headers: {
+            'Content-Type': 'application/json',
+          },
+        body: JSON.stringify({tweets:"cats"})
     })
     .then((response) =>{
         console.log(response)
