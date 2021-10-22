@@ -164,22 +164,29 @@ function searchTweets(query){
 }
 
 function fetchTweets() {
-    url = '/twitter1/100'
+    console.log("Fetching tweets")
+    url = 'http://54.66.18.56:3000/tweets/2'
+    console.log(url)
     fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
           },
-        body: JSON.stringify({tweets:"cats"})
+        body: JSON.stringify({tweets:["cats","dogs"]})
+    })
+    .then( (response) => {
+        if (response.ok) {
+            console.log(response)
+            return response.json();
+        }
+        throw new Error("Network response was not ok.");
     })
     .then((response) =>{
         console.log(response)
     })
-    .then((response)=>{
-        console.log(response)
-    })
     .catch((error) => {
-        console.error(error);
+        console.log("test")
+        console.error(error.message);
     })
 }
 
