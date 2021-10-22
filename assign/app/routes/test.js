@@ -22,18 +22,19 @@ router.post('/:number', (req,res) => {
     //keep the tweets array as a public item so we can apppend all tweets at to it
     const tweetArray=[]
     let tweets = req.body.tweets
-    console.log(tweets)
-    tweets.forEach(tweet => {
-            T.get('search/tweets', { q:tweet , count: req.params.number }, function(err, data, response) {
-                for (let index = 0; index < data.statuses.length; index++) {
-                    x = data.statuses[index].text;
-                    console.log(x)
-                    tweetArray.push()
-               }    
-            })
-        });
-        console.log(tweetArray[1])       
-        res.end(JSON.stringify(tweetArray));
+    console.log(typeof(tweets))
+    for(let i = 0; i < tweets.length; i++) {
+        T.get('search/tweets', { q:tweets[i] , count: req.params.number }, function(err, data, response) {
+            for (let index = 0; index < data.statuses.length; index++) {
+                x = data.statuses[index].text;
+                tweetArray.push(x)
+           }
+           if(tweetArray.length === tweets.length*req.params.number){
+            res.write(JSON.stringify(tweetArray));
+            res.end();
+           }
+        })
+    }
     });
     
     
