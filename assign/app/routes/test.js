@@ -18,25 +18,34 @@ var T = new Twit({
   });
 
 
-router.post('/:number', (req,res) => {
-    //keep the tweets array as a public item so we can apppend all tweets at to it
-    const tweetArray=[]
-    let tweets = req.body.tweets
-    console.log(typeof(tweets))
-    for(let i = 0; i < tweets.length; i++) {
-        T.get('search/tweets', { q:tweets[i] , count: req.params.number }, function(err, data, response) {
-            for (let index = 0; index < data.statuses.length; index++) {
-                x = data.statuses[index].text;
-                tweetArray.push(x)
-           }
-           if(tweetArray.length === tweets.length*req.params.number){
-            res.write(JSON.stringify(tweetArray));
-            res.end();
-           }
-        })
-    }
-    });
-    
+router.get('/:number', (req,res) => {
+    console.log("Fetching tweets")
+    url = 'http://127.0.0.1:3006/tweets/100'
+    console.log(url)
+    tweet_arr = []
+
+    axios.post(url, {
+        tweets:['cats','dogs']
+    })
+    .then( (response) => {
+        console.log(response.status)
+        if (response.status == 200) {
+            return response.data;
+        }
+        throw new Error("Network response was not ok.");
+    })
+    .then((response) =>{
+        let tweets = {"tweets":response}
+        res.write(JSON.stringify(tweets));
+        res.end()
+    })
+    .catch((error) => {
+        console.error(error.message);
+    })
+
+
+});
+
     
     
 

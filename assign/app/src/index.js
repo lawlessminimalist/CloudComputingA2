@@ -165,18 +165,11 @@ function searchTweets(query){
 
 function fetchTweets() {
     console.log("Fetching tweets")
-    url = 'http://54.66.18.56:3000/tweets/2'
+    url = '/twitter1/100'
     console.log(url)
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-          },
-        body: JSON.stringify({tweets:["cats","dogs"]})
-    })
+    fetch(url)
     .then( (response) => {
         if (response.ok) {
-            console.log(response)
             return response.json();
         }
         throw new Error("Network response was not ok.");
