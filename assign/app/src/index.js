@@ -51,7 +51,6 @@ var form = document.getElementById("lookup");
 form.addEventListener('submit', handleForm);
 mymap.addEventListener('click', onMapClick);
 
-
 //handle submit of desired location and 
 function handleForm(event) { 
     event.preventDefault();
@@ -98,7 +97,6 @@ function trends(location){
     
 }
     
-
 //given a location, forward geo-code a location into coordinates and set the map view to that locaiton
 function searchLocation(query){
     const options = createMapOptions(query);
@@ -142,84 +140,6 @@ function reverseGeoCode(lattlng){
 
 }
 
-//grab tweets from twitter route and leave as json objects for sentiment analysis
-function searchTweets(query){
-    url = `/twitter/${query}/30`;
-    fetch(url)
-        .then( (response) => {
-            if (response.ok) {
-                console.log(response.json())
-                return response.json();
-            }
-            throw new Error("Network response was not ok.");
-        })
-        .then((response) =>{
-            score = updateSentiment(response)
-            emoji_writer(score);
-            return response
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-}
-
-function fetchTweets() {
-    console.log("Fetching tweets")
-    url = '/twitter1/100'
-    console.log(url)
-    fetch(url)
-    .then( (response) => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error("Network response was not ok.");
-    })
-    .then((response) =>{
-        console.log(response)
-    })
-    .catch((error) => {
-        console.log("test")
-        console.error(error.message);
-    })
-}
-
-//grab tweets from twitter route and calculate spelling accuracy
-function spellCheck(){
-    fetchTweets()
-    let queries = document.getElementsByClassName("checkbutton")
-    let accuracyResults = []
-    let tweets = []
-    for(let i = 0; i < queries.length; i++) {
-        if(queries[i].checked===true){
-            tweets.push(queries[i].value)
-        }
-    }
-    if(tweets.length!==3){
-        alert('Make Sure To Select Three Hashtags To Use')
-    } else {
-        tweets.forEach(tweet => {
-            url = `/spellcheck/${tweet}/30`;
-            fetch(url)
-                .then( (response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error("Network response was not ok.");
-                })
-                .then((response) =>{
-                    accuracyResults.push(response);
-                    if(accuracyResults.length===tweets.length) {
-                        createGraph(tweets,accuracyResults)
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        });
-    }
-}
-
-
 function updateSentiment(tweets){
     console.log(tweets)
     target = tweets.data;
@@ -231,9 +151,6 @@ function updateSentiment(tweets){
     return consensus;
 
 }
-
-
-
 
 //define keys and params
 const mapObj = {
@@ -249,10 +166,7 @@ const geocode = {
 
 };
 
-
-
 //create options to hit Mapbox API for both searching and reverse geocoding
-
 
 function createMapOptions(query) {
     const options = {
@@ -284,10 +198,6 @@ function createReverseGeoReq(lattlng) {
     return options;
 }
 
-
-//functions to append data to the client side applicaiton and make them actionable by the user via embedded JS
-
-
 //given a score write an appropriate emoji to the html with the valency underneath
 function emoji_writer(score){
     string = "";
@@ -303,13 +213,51 @@ function emoji_writer(score){
     else if(score < 0){
         string = "&#128545"
     }
-    writeSentiment(string,score);
+    return string
+    //writeSentiment(string,score);
 }
 
-
-
-
-
+function fetchTweets() {
+    let checkButtons = document.getElementsByClassName("checkbutton")
+    let allTweets = []
+    let searchTweets = []
+    for(let i = 0; i < checkButtons.length; i++){
+        allTweets.push(checkButtons[i].value)
+        if(checkButtons[i].checked){
+            searchTweets.push(checkButtons[i].value)
+        }
+    }
+    fetch("/twitter",
+    {
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({allTweets: allTweets, searchTweets: searchTweets})
+    })
+    .then( (response) => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error("Network response was not ok.");
+    })
+    .then((res) => {
+        //we now have our data in the front end, we now need to feed it into the graph functionality
+        let accuracies = []
+        let tweets = []
+        res.forEach(item => {
+            accuracies.push(item.accuracy)
+            let test = emoji_writer(item.sentiment)
+            console.log(test)
+            tweets.push(item.tweet + " " + test)
+        })
+        createGraph(tweets,accuracies)
+    })
+    .catch(function(error) {
+        console.log("There has been a problem with your fetch operation: ",error.message);
+    });
+}
 
 function write_list_to_buttons(trends){
     var parent = document.getElementById("trend_selectors");
@@ -318,7 +266,7 @@ function write_list_to_buttons(trends){
     for(let i=0; i < trends.length; i++) {
         str+=`<input type="checkbox" class="checkbutton" value="`+ trends[i].value +`">`+trends[i].value+`</checkbutton><br />`;
     }
-    str += `<button onclick ='spellCheck()' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left">Analyse Trends</button>`
+    str += `<button onclick ='fetchTweets()' class="btn btn-primary btn-lg active col-xs-2 margin-top margin-left">Analyse Trends</button>`
     parent.innerHTML+=(str);
 }
 

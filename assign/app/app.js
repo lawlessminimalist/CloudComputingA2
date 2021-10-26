@@ -4,10 +4,9 @@ const app = express();
 const path = require('path');
 const trendSearch = require('./routes/trends.js');
 const newsSearch = require('./routes/news_api.js');
-const twitterSearch = require('./routes/twitter.js');
 const spellCheck = require('./routes/spellcheck');
 const graph = require('./routes/graph');
-const twitter1 = require('./routes/test.js')
+const twitter = require('./routes/test.js')
 
 const hostname = '127.0.0.1';
 const port = 3005;
@@ -25,10 +24,9 @@ app.get('/', (req, res) => {
 app.use(express.json())
 app.use('/search',trendSearch); 
 app.use('/news',newsSearch);
-app.use('/twitter',twitterSearch)
 app.use('/spellcheck',spellCheck)
 app.use('/graph',graph)
-app.use('/twitter1',twitter1)
+app.use('/twitter',twitter)
 
 app.listen(port, function () {
  console.log(`Express app listening at http://${hostname}:${port}/`);
