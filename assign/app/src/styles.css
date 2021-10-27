@@ -83,12 +83,7 @@ body {
 
 }
 
-#myChart{
-  height: 30em!important;
-  width:  30em!important;
-  margin-top: initial;
-  margin:auto;
-}
+
 
 #metrics{
   width:90%;
@@ -97,6 +92,13 @@ body {
   text-align: center;
   margin-top: 5em;
 }
+
+#graph{
+  margin:auto;
+  height:40%;
+  width: 40%;
+}
+  
 
 #emoji{
   margin:auto;

@@ -26,11 +26,16 @@ function createGraph(tweets,accuracy) {
             }]
         },
         options: {
+            responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: false,
                 }
-            }
+            },
+            title: {
+                display: true,
+                text: 'Spelling Accuracy in Tweets'
+              }
         }
     });
 }
