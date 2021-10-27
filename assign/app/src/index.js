@@ -213,8 +213,8 @@ function emoji_writer(score){
     else if(score < 0){
         string = "&#128545"
     }
+    writeSentiment(string,score);
     return string
-    //writeSentiment(string,score);
 }
 
 function fetchTweets() {
@@ -243,13 +243,13 @@ function fetchTweets() {
         throw new Error("Network response was not ok.");
     })
     .then((res) => {
+        console.log(res)
         //we now have our data in the front end, we now need to feed it into the graph functionality
         let accuracies = []
         let tweets = []
         res.forEach(item => {
             accuracies.push(item.accuracy)
             let test = emoji_writer(item.sentiment)
-            console.log(test)
             tweets.push(item.tweet + " " + test)
         })
         createGraph(tweets,accuracies)
@@ -271,7 +271,7 @@ function write_list_to_buttons(trends){
 }
 
 function writeSentiment(string,score){
-    var parent = document.getElementById("article_displays");
+    var parent = document.getElementById("emoji");
     str=`<h1>`+string+`</h1><h1>`+Math.round(score*20)+`%</h1>`;
     parent.innerHTML=(str);
 }

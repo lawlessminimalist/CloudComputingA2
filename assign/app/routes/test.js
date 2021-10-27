@@ -47,9 +47,7 @@ router.post('/', (req,res) => {
         searchTweets.forEach(tweet=>{
             tempTweetArray = []
             for(let i = 0; i < responseLength;i++){
-                if(response[i].includes(tweet)){
                     tempTweetArray.push(response[i])
-                }
             }
             sortedTweets.push(tempTweetArray)
         })
