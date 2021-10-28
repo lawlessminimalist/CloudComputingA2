@@ -1,5 +1,6 @@
 function createGraph(tweets,accuracy) {
     var ctx = document.getElementById('myChart').getContext('2d');
+    console.log(tweets)
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -147,12 +148,13 @@ function reverseGeoCode(lattlng){
 
 function updateSentiment(tweets){
     console.log(tweets)
-    target = tweets.data;
+    target = tweets;
     let consensus = 0;
     for(let i=0; i < target.length; i++) {
-        consensus = consensus + target[i].sentiment;
+        consensus = consensus + target[i];
     }
     consensus = consensus/target.length;
+    console.log(consensus)
     return consensus;
 
 }
@@ -252,11 +254,14 @@ function fetchTweets() {
         //we now have our data in the front end, we now need to feed it into the graph functionality
         let accuracies = []
         let tweets = []
+        let sentiment = [];
         res.forEach(item => {
             accuracies.push(item.accuracy)
-            let test = emoji_writer(item.sentiment)
-            tweets.push(item.tweet + " " + test)
+            tweets.push(item.tweet)
+            sentiment.push(item.sentiment)
         })
+        let score = updateSentiment(sentiment);
+        emoji_writer(score)
         createGraph(tweets,accuracies)
     })
     .catch(function(error) {

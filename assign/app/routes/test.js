@@ -22,7 +22,7 @@ var T = new Twit({
 
 
 router.post('/', (req,res) => {
-    url = 'http://ec2-54-252-146-192.ap-southeast-2.compute.amazonaws.com:3000/tweets'
+    url = 'http://ec2-54-206-211-99.ap-southeast-2.compute.amazonaws.com:3000/tweets'
     tweet_arr = []
 
     axios({
@@ -63,10 +63,15 @@ router.post('/', (req,res) => {
         sorted.forEach(tweets => {
             let accuracy = analyseTweets(tweets)
             accuracies.push(accuracy)
-
-            var result = sentiment.analyze(tweets.toString());
-            sentiments.push(result.score)
-        })        
+        }) 
+        sorted[0].forEach(
+            tweets => {
+                let x = tweets.toString()
+                let result = sentiment.analyze(x);
+                console.log(result)
+                sentiments.push(result.comparative)
+            });
+              
         //now that we've done our data processing, we can export
         //and send the data to be used on the front-end
         let tweetsArray = []
