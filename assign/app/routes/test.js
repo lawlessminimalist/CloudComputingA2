@@ -22,7 +22,7 @@ var T = new Twit({
 
 
 router.post('/', (req,res) => {
-    url = 'http://ec2-54-252-146-192.ap-southeast-2.compute.amazonaws.com:3000/tweets'
+    url = 'http://ec2-54-206-211-99.ap-southeast-2.compute.amazonaws.com:3000/tweets'
     tweet_arr = []
 
     axios({
