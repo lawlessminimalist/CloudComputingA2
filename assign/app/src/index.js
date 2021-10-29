@@ -1,12 +1,20 @@
-function createGraph(tweets,accuracy) {
+
+//variables used to keep track of already examined tweets
+historic_accuracy = []
+historic_sentiments = []
+historic_tweets = []
+
+
+function createGraph(tweets) {
     var ctx = document.getElementById('myChart').getContext('2d');
-    console.log(tweets)
+    ctx.innerHTML = "";
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: tweets,
-            datasets: [{
-                data: accuracy,
+            datasets: [
+                {
+                data: historic_accuracy,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -24,14 +32,37 @@ function createGraph(tweets,accuracy) {
                     'rgba(255, 159, 64, 1)'
                 ],
                 borderWidth: 1
-            }]
+            },
+            {
+                data: historic_sentiments,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }
+        ]
         },
         options: {
-            responsive: true,
+            
             scales: {
-                y: {
-                    beginAtZero: false,
-                }
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
             },
             title: {
                 display: true,
@@ -146,19 +177,6 @@ function reverseGeoCode(lattlng){
 
 }
 
-function updateSentiment(tweets){
-    console.log(tweets)
-    target = tweets;
-    let consensus = 0;
-    for(let i=0; i < target.length; i++) {
-        consensus = consensus + target[i];
-    }
-    consensus = consensus/target.length;
-    console.log(consensus)
-    return consensus;
-
-}
-
 //define keys and params
 const mapObj = {
     api_key: "pk.eyJ1IjoiZGFubGF3bGVzcyIsImEiOiJja3Q4MGYyeGMweHZiMnBxbnptaW9pZmc5In0.d0JcWkmcG3tFuMlalviNxw",
@@ -254,15 +272,27 @@ function fetchTweets() {
         //we now have our data in the front end, we now need to feed it into the graph functionality
         let accuracies = []
         let tweets = []
-        let sentiment = [];
+        let scores = []
+        let count = 0;
         res.forEach(item => {
             accuracies.push(item.accuracy)
             tweets.push(item.tweet)
-            sentiment.push(item.sentiment)
+            let sentiment = res[count].sentiment;
+            scores.push(sentiment.reduce((a, b) => (a + b)) / sentiment.length)
         })
-        let score = updateSentiment(sentiment);
+        count = 0;
+        tweets.forEach(tweet =>{
+            if(!historic_tweets.includes(tweet)){
+                historic_accuracy.push(accuracies[count])
+                historic_sentiments.push(Math.round(scores[count]*20))
+            }
+            count = count + 1;
+        })
+
+        let score = scores.reduce((a, b) => (a + b)) / scores.length;
+
         emoji_writer(score)
-        createGraph(tweets,accuracies)
+        createGraph(tweets)
     })
     .catch(function(error) {
         console.log("There has been a problem with your fetch operation: ",error.message);
@@ -285,3 +315,4 @@ function writeSentiment(string,score){
     str=`<h1>`+string+`</h1><h1>`+Math.round(score*20)+`%</h1>`;
     parent.innerHTML=(str);
 }
+

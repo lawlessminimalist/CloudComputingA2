@@ -9,8 +9,7 @@ const server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 const analyseTweets = require('./spellcheck')
-var Sentiment = require('sentiment');
-var sentiment = new Sentiment();
+var sentiment = require('multilang-sentiment');
 
 var T = new Twit({
     consumer_key:         'pXoX1DPcMooGje3jECA4ijHDR',
@@ -22,14 +21,14 @@ var T = new Twit({
 
 
 router.post('/', (req,res) => {
-    url = 'http://ec2-54-206-211-99.ap-southeast-2.compute.amazonaws.com:3000/tweets'
+    url = 'http://127.0.0.1:3006/tweets/20'
     tweet_arr = []
 
     axios({
         method: 'post',
         url: url,
         data: {
-            tweets: req.body.allTweets
+            tweets: req.body.searchTweets
         }
       })
     .then( (response) => {
@@ -67,10 +66,15 @@ router.post('/', (req,res) => {
         sorted[0].forEach(
             tweets => {
                 let x = tweets.toString()
-                let result = sentiment.analyze(x);
-                console.log(result)
-                sentiments.push(result.comparative)
+                let result = sentiment(x);
+                if(result.comparative <= 5 && result.comparative >= -5){
+                    sentiments.push(result.comparative)
+                }
+                else{
+                    sentiments.push(0);
+                }
             });
+
               
         //now that we've done our data processing, we can export
         //and send the data to be used on the front-end
@@ -80,7 +84,7 @@ router.post('/', (req,res) => {
             let tempObject = {
                 "tweet":searchTweets[i],
                 "accuracy":accuracies[i],
-                "sentiment":sentiments[i]
+                "sentiment":sentiments
             }
             tweetsArray.push(tempObject)
         }
