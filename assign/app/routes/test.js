@@ -21,7 +21,7 @@ var T = new Twit({
 
 
 router.post('/', (req,res) => {
-    url = 'http://127.0.0.1:3006/tweets/20'
+    url = 'http://dlawless-lb1-1204030890.ap-southeast-2.elb.amazonaws.com:3006/tweets/20'
     tweet_arr = []
 
     axios({

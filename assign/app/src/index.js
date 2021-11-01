@@ -6,9 +6,9 @@ historic_tweets = []
 
 
 function createGraph(tweets) {
-    var ctx = document.getElementById('myChart').getContext('2d');
+    let ctx = document.getElementById('myChart').getContext('2d');
     ctx.innerHTML = "";
-    var myChart = new Chart(ctx, {
+    let myChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: tweets,
@@ -56,7 +56,6 @@ function createGraph(tweets) {
         ]
         },
         options: {
-            
             scales: {
                 yAxes: [{
                     ticks: {
