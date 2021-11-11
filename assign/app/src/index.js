@@ -66,7 +66,12 @@ function createGraph(tweets) {
             title: {
                 display: true,
                 text: 'Spelling Accuracy in Tweets'
-              }
+              },
+            plugins:{
+                legend:{
+                    display: false
+                }
+            }
         }
     });
 }
@@ -278,18 +283,20 @@ function fetchTweets() {
             tweets.push(item.tweet)
             let sentiment = res[count].sentiment;
             scores.push(sentiment.reduce((a, b) => (a + b)) / sentiment.length)
+            count = count + 1;
         })
         count = 0;
         tweets.forEach(tweet =>{
-            if(!historic_tweets.includes(tweet)){
+                historic_accuracy = []
+                historic_sentiments = []
                 historic_accuracy.push(accuracies[count])
                 historic_sentiments.push(Math.round(scores[count]*20))
-            }
+            
             count = count + 1;
         })
 
         let score = scores.reduce((a, b) => (a + b)) / scores.length;
-
+        console.log(historic_sentiments)
         emoji_writer(score)
         createGraph(tweets)
     })
